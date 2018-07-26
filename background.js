@@ -42,10 +42,15 @@ function inverterCores(b, tab) {
 			        file: "dark.css"
 			});
 
-			browser.storage.local.get("dontInvertList").then((lista) => {
+			browser.storage.local.get("dontInvertList").then((objeto) => {
+
+				
+
 //				var listaVazia = 0;
 //				for(k in lista) listaVazia++;
-				if( lista.enderecos !== undefined ) {
+				if( objeto.enderecos !== undefined ) {
+var lista = JSON.parse(objeto);
+console.log(lista);
 				for( let url of lista.enderecos ) {
 					console.log(url);
 					if( abas[i].url.match(url) == null ){
@@ -96,12 +101,15 @@ function  onUpdatedTabs(){
 
 
 function persistUrl(pageUrl){
-	browser.storage.local.get().then((lista) => {
+	browser.storage.local.get().then((objeto) => {
 		var adicionar = true;
 		var oUrl = (new URL(pageUrl));
 		var url = oUrl.protocol + "//" + oUrl.hostname;
 
-		if(lista.hasOwnProperty("enderecos") ){
+
+		if(objeto.enderecos !== undefined ){
+				//var lista = JSON.parse(objeto);
+var lista = objeto;
 		for(i=0; i<lista.enderecos.length; i++){
 			if( lista.enderecos[i] == url ){
 				lista.enderecos[i] = null;
@@ -117,13 +125,9 @@ function persistUrl(pageUrl){
 			lista.enderecos.push(url);
 			console.log(url + " Adicionada");
 		}
-
-
-		browser.storage.local.set(
-			{
-				enderecos : lista.enderecos
-			}
-		);
+console.log("FOI ");
+		//browser.storage.local.set(JSON.stringify(lista));
+		browser.storage.local.set(lista);
 	});
 }
 
