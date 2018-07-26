@@ -156,7 +156,7 @@ MENU ITENS
 
 browser.contextMenus.create({
   id: "dont-invert",
-  title: "Add this URL to the 'dont invert' list",
+  title: " Add/Remove this URL to the 'dont invert' list",
   //type: "checkbox",
   contexts: ["all"],
   //checked : dontInvertState
