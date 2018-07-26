@@ -1,0 +1,28 @@
+{
+    "manifest_version": 2,
+    "name": "GoDark",
+    "version": "0.1",
+    "homepage_url": "https://github.com/marcelbonnet/firefox-godark",
+    "author" : "Marcel Bonnet",
+    "description" : "Extension to invert page and tabs colors.",
+
+    "browser_action": {
+        "default_icon": "images/branco.png",
+        "default_title": "GoDark",
+        "browser_style": true
+    },
+
+     
+    "background": {
+		"scripts": ["background.js"]
+    },
+
+
+    "permissions": [
+        "sessions",
+        "tabs",
+        "storage",
+        "contextMenus",
+        "<all_urls>"
+    ]
+}

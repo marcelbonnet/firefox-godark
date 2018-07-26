@@ -1,0 +1,38 @@
+/*
+*:not(pre,code)  {
+	background-color: black !important;
+	color: white !important;
+}
+
+A, A:hover, A:visited, A:active {
+	background-color: black !important;
+	color: blue !important;
+}
+
+div {
+	background: black !important;
+	color: white !important;
+}
+
+img {
+   -webkit-filter: invert(1);
+   filter: invert(1);
+}
+*/
+
+html
+{
+    background-color: black;
+}
+
+body
+{
+    filter: invert(100%);
+    background-color: white;
+    color: black;
+}
+
+img, svg, video, canvas, [style*=".jpg"], [style*=".png"], [style*=".gif"], [style*=".svg"]
+{
+    filter: invert(100%);
+}
