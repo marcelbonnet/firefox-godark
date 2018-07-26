@@ -42,22 +42,21 @@ function inverterCores(b, tab) {
 			        file: "dark.css"
 			});
 
-			browser.storage.local.get("dontInvertList").then((objeto) => {
+			browser.storage.local.get("enderecos").then((lista) => {
 
-				
+				if( lista !== undefined && lista.enderecos !== undefined ) {
 
-//				var listaVazia = 0;
-//				for(k in lista) listaVazia++;
-				if( objeto.enderecos !== undefined ) {
-var lista = JSON.parse(objeto);
-console.log(lista);
-				for( let url of lista.enderecos ) {
-					console.log(url);
-					if( abas[i].url.match(url) == null ){
+				for( k=0; k<lista.enderecos.length; k++ ) {
+					var url = lista.enderecos[k];
+
+console.log( abas[i].url.match(url) == null );
+
+					if( abas[i].url.match(url) !== null ){
 						browser.tabs.removeCSS(abas[i].id, {
 						        file: "dark.css"
 						});
 					}
+
 				} //for lista
 				}//if lista
 			});
@@ -168,7 +167,6 @@ browser.contextMenus.onClicked.addListener(function(data, tab) {
 
   }
 });
-
 
 
 browser.tabs.onUpdated.addListener(onUpdatedTabs);
