@@ -30,42 +30,37 @@ function handleStorageUpdate(changes, area) {
     }
 }
 
-function getBlockedUrls(){
-	return [
-		"^https://sei.anatel.gov.br/sei",
-	];
-}
 
 
-function inverterCores(obj, tab) {
 
-/*
-- pediu para inverter? s/n
-- o site está na lista de "não inverter" ? s/n
-*/
+function inverterCores(b, tab) {
 
 	var query = browser.tabs.query({ currentWindow: true }) ;
 	query.then((abas) => {
-	for(i=0; i<abas.length; i++){
-		for( let url of getBlockedUrls() ) {
-			console.log(url);
-			if( abas[i].url.match(url) == null ){
-				browser.tabs.insertCSS(abas[i].id, {
-				        file: "dark.css"
-				    });
-				}
-			}
-		}
-		
+		for(i=0; i<abas.length; i++){
+			browser.tabs.insertCSS(abas[i].id, {
+			        file: "dark.css"
+			});
+
+			browser.storage.local.get("dontInvertList").then((lista) => {
+//				var listaVazia = 0;
+//				for(k in lista) listaVazia++;
+				if( lista.enderecos !== undefined ) {
+				for( let url of lista.enderecos ) {
+					console.log(url);
+					if( abas[i].url.match(url) == null ){
+						browser.tabs.removeCSS(abas[i].id, {
+						        file: "dark.css"
+						});
+					}
+				} //for lista
+				}//if lista
+			});
+		};//for abas
 	});
 
-	updateIcon(true);
-	var bd = browser.storage.local;
+	updateIcon(b);
 
-	
-	browser.storage.local.get().then((res) => {
-		console.log(res);
-	});
 /*
     browser.storage.local.get().then((res) => {
       if (tab) {
@@ -100,10 +95,36 @@ function  onUpdatedTabs(){
 }
 
 
-function persistUrl(url, b){
-//url com regex
-//se false, remover do storage e atualizar context menu
-//se true, adicionar no storage
+function persistUrl(pageUrl){
+	browser.storage.local.get().then((lista) => {
+		var adicionar = true;
+		var oUrl = (new URL(pageUrl));
+		var url = oUrl.protocol + "//" + oUrl.hostname;
+
+		if(lista.hasOwnProperty("enderecos") ){
+		for(i=0; i<lista.enderecos.length; i++){
+			if( lista.enderecos[i] == url ){
+				lista.enderecos[i] = null;
+				adicionar = false;
+			}
+		}
+		} else {
+			adicionar = true;
+		}
+		if(adicionar){
+			if(lista.enderecos == null)
+				lista.enderecos = [];
+			lista.enderecos.push(url);
+			console.log(url + " Adicionada");
+		}
+
+
+		browser.storage.local.set(
+			{
+				enderecos : lista.enderecos
+			}
+		);
+	});
 }
 
 
@@ -112,7 +133,7 @@ function persistUrl(url, b){
 	CONTEXT MENU
 */
 
-var dontInvertState = false;
+//var dontInvertState = false;
 
 function onCreated() {
   if (browser.runtime.lastError) {
@@ -126,26 +147,28 @@ MENU ITENS
 
 browser.contextMenus.create({
   id: "dont-invert",
-  title: browser.i18n.getMessage("contextMenuItemDontInvert"),
-  type: "checkbox",
+  title: "Add this URL to the 'dont invert' list",
+  //type: "checkbox",
   contexts: ["all"],
-  checked : dontInvertState
+  //checked : dontInvertState
 }, onCreated);
 
 /*
 LISTENER
 */
 browser.contextMenus.onClicked.addListener(function(data, tab) {
-  switch (info.menuItemId) {
+  switch (data.menuItemId) {
     case "dont-invert":
-      console.log(info.selectionText);
+	persistUrl(data.pageUrl);
       break;
 
   }
-})
+});
+
+
 
 browser.tabs.onUpdated.addListener(onUpdatedTabs);
 //browser.storage.onChanged.addListener(handleStorageUpdate);
 browser.browserAction.onClicked.addListener(inverterCores);
 
-inverterCores(false);	//carregar plugin mas sem inverter as cores
+inverterCores(true);	//fazer uma opção: "ativar ao carregar o browser ?"
