@@ -35,33 +35,39 @@ function handleStorageUpdate(changes, area) {
 
 function inverterCores(b, tab) {
 
+
+
+			browser.storage.local.get("enderecos").then((lista) => {
+
 	var query = browser.tabs.query({ currentWindow: true }) ;
 	query.then((abas) => {
 		for(i=0; i<abas.length; i++){
 			browser.tabs.insertCSS(abas[i].id, {
 			        file: "dark.css"
 			});
-
-			browser.storage.local.get("enderecos").then((lista) => {
-
+		};
 				if( lista !== undefined && lista.enderecos !== undefined ) {
 
 				for( k=0; k<lista.enderecos.length; k++ ) {
 					var url = lista.enderecos[k];
+for(i=0; i<abas.length; i++){
 
-console.log( abas[i].url.match(url) == null );
+//console.log( abas[i].url.match(url) !== null );
 
 					if( abas[i].url.match(url) !== null ){
+console.log( 'removendo '  + abas[i].url );
 						browser.tabs.removeCSS(abas[i].id, {
 						        file: "dark.css"
 						});
 					}
-
+}
 				} //for lista
 				}//if lista
+ 	});//fecha a query
+
 			});
-		};//for abas
-	});
+		//};//for abas
+	//});
 
 	updateIcon(b);
 
