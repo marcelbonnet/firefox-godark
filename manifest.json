@@ -1,15 +1,7 @@
 {
-
-    "applications": {
-      "gecko": {
-        "id": "marcelbonnet@localhost.STUDIO",
-        "strict_min_version": "52.0"
-      }
-    },
-
     "manifest_version": 2,
     "name": "GoDark",
-    "version": "0.1",
+    "version": "0.2",
     "homepage_url": "https://github.com/marcelbonnet/firefox-godark",
     "author" : "Marcel Bonnet",
     "description" : "Extension to invert page and tabs colors.",
