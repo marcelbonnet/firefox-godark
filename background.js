@@ -129,6 +129,8 @@ browser.contextMenus.create({
   //checked : dontInvertState
 }, onCreated);
 
+/*
+//itens de menu apenas para teste do plugin
 browser.contextMenus.create({
   id: "ligar",
   title: " Ligar",
@@ -140,6 +142,7 @@ browser.contextMenus.create({
   title: " Desligar",
   contexts: ["all"],
 }, onCreated);
+*/
 
 /*
 LISTENER
@@ -187,30 +190,5 @@ function onUpdated(){
     });
 }
 
-//browser.tabs.onUpdated.addListener(onUpdated);
+browser.tabs.onUpdated.addListener(inverterCores);
 browser.browserAction.onClicked.addListener(browserAction);
-
-/*
-browser.browserAction.onClicked.addListener(function(){
-
-    getConfig().then(function(o){
-        o.config.estado = !o.config.estado;
-
-        if (o.config.estado) {
-            browser.browserAction.setIcon({ path: "images/preto.png" });
-            browser.browserAction.setTitle({ title: "Revert to original colors" });
-        } else {
-            browser.browserAction.setIcon({ path: "images/branco.png" });
-            browser.browserAction.setTitle({ title: "Invert colors" });
-        }
-
-        browser.storage.local.set(o);
-
-        console.log(o);
-    });
-});
-
-*/
-
-
-
