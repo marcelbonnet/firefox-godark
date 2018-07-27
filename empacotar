@@ -1,3 +1,3 @@
 #!/usr/local/bin/bash
 
-zip -r /tmp/godark *.css *.html *.js images
+zip -r /tmp/godark *.css *.html *.js manifest.json images
