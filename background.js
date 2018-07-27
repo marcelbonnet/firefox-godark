@@ -8,6 +8,11 @@ function updateIcon(state) {
         browser.browserAction.setIcon({ path: "images/branco.png" });
         browser.browserAction.setTitle({ title: "Invert colors" });
     }
+
+    browser.storage.local.get("start").then((o) => {
+        o.state = state;
+        browser.storage.local.set(o);
+    });
 }
 
 
@@ -66,55 +71,19 @@ console.log( 'removendo '  + abas[i].url );
  	});//fecha a query
 
 			});
-		//};//for abas
-	//});
 
 	updateIcon(b);
-
-/*
-    browser.storage.local.get().then((res) => {
-      if (tab) {
-        browser.sessions.getTabValue(tab.id, "invertColors").then( tabState => {
-          tabState = !tabState;
-          browser.sessions.getTabValue(tab.id, "imgNoInvert").then( imgNoInvert => {
-            setColorsToState(tab.id, tabState, res.ImgColorNoInvert);
-            setPageIconState(tab, tabState);
-          }, nullFunc());
-        }, nullFunc());
-      } else {
-        var state = res.InvertColorsState ? res.InvertColorsState : false;
-        state = obj != false ? !state : state;
-        setIconState(state);
-
-        browser.storage.local.set({ InvertColorsState: state, ImgColorNoInvert: res.ImgColorNoInvert });
-
-        browser.tabs.query({}).then((tabs) => {
-            for (var tab of tabs) {
-                setColorsToState(tab.id, state, res.ImgColorNoInvert);
-            };
-        });
-      }
-    });
-*/
-}
-
-function  onUpdatedTabs(){
-//atualizar context menu se URL foi bloqueada
-//inverter ou não as cores baseado na regex de URLs do local storage
-	console.info('Uma aba foi atualizada ou aberta');
 }
 
 
 function persistUrl(pageUrl){
-	browser.storage.local.get().then((objeto) => {
+	browser.storage.local.get().then((lista) => {
 		var adicionar = true;
 		var oUrl = (new URL(pageUrl));
 		var url = oUrl.protocol + "//" + oUrl.hostname;
 
 
-		if(objeto.enderecos !== undefined ){
-				//var lista = JSON.parse(objeto);
-var lista = objeto;
+		if(lista.enderecos !== undefined ){
 		for(i=0; i<lista.enderecos.length; i++){
 			if( lista.enderecos[i] == url ){
 				lista.enderecos[i] = null;
@@ -130,8 +99,7 @@ var lista = objeto;
 			lista.enderecos.push(url);
 			console.log(url + " Adicionada");
 		}
-console.log("FOI ");
-		//browser.storage.local.set(JSON.stringify(lista));
+
 		browser.storage.local.set(lista);
 	});
 }
@@ -147,7 +115,7 @@ console.log("FOI ");
 function onCreated() {
   if (browser.runtime.lastError) {
     console.error(`Error: ${browser.runtime.lastError}`);
-  } 
+  }
 }
 
 /*
@@ -168,15 +136,23 @@ LISTENER
 browser.contextMenus.onClicked.addListener(function(data, tab) {
   switch (data.menuItemId) {
     case "dont-invert":
-	persistUrl(data.pageUrl);
-      break;
+        persistUrl(data.pageUrl);
+        startup();
+    break;
 
   }
 });
 
 
-browser.tabs.onUpdated.addListener(onUpdatedTabs);
-//browser.storage.onChanged.addListener(handleStorageUpdate);
+browser.tabs.onUpdated.addListener(inverterCores);
 browser.browserAction.onClicked.addListener(inverterCores);
 
-inverterCores(true);	//fazer uma opção: "ativar ao carregar o browser ?"
+//on startup
+function startup(){
+    browser.storage.local.get("start").then((o) => {
+        inverterCores(o.state);
+    });
+}
+
+
+startup();
