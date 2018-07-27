@@ -11,50 +11,49 @@ function updateIcon(state) {
 
     browser.storage.local.get("start").then((o) => {
         o.state = state;
+        console.log("vou salvar : "); console.log(o);
         browser.storage.local.set(o);
     });
 }
 
+//retorna objeto de configuração do plugin
+function getConfig(){
+    return browser.storage.local.get().then(function(o){
+        //inicialização
+        if(o.config === undefined) o.config = {};
+        if(o.config.estado === undefined) o.config.estado = false;
+        if(o.config.enderecos === undefined) o.config.enderecos = [];
 
-function handleStorageUpdate(changes, area) {
-    if (area == "local") {
-        for (var item of Object.keys(changes)) {
-            if (item == "InvertColorsState" || item == "ImgColorNoInvert") {
-                browser.storage.local.get().then((res) => {
-                    var state = res.InvertColorsState ? res.InvertColorsState : false;
-                    setIconState(state);
-
-                    browser.tabs.query({}).then((tabs) => {
-                        for (var tab of tabs) {
-                            setColorsToState(tab.id, state, res.ImgColorNoInvert);
-                        };
-                    });
-                });
-            }
-        }
-    }
+        console.log('Meu estado atual é: ' + o.config.estado );
+        console.log('Domínios que não devem ter a cor invertida: ' + o.config.enderecos );
+        return o;
+    });
 }
 
 
 
+function inverterCores() {
 
-function inverterCores(b, tab) {
-
-
-
-			browser.storage.local.get("enderecos").then((lista) => {
+	getConfig().then((obj) => {
 
 	var query = browser.tabs.query({ currentWindow: true }) ;
 	query.then((abas) => {
 		for(i=0; i<abas.length; i++){
-			browser.tabs.insertCSS(abas[i].id, {
-			        file: "dark.css"
-			});
+			if(obj.config.estado){
+                browser.tabs.insertCSS(abas[i].id, {
+                        file: "dark.css"
+                });
+            } else {
+                browser.tabs.removeCSS(abas[i].id, {
+                        file: "dark.css"
+                });
+            }
 		};
-				if( lista !== undefined && lista.enderecos !== undefined ) {
 
-				for( k=0; k<lista.enderecos.length; k++ ) {
-					var url = lista.enderecos[k];
+				if( obj.config.estado  ) {
+
+				for( k=0; k<obj.config.enderecos.length; k++ ) {
+					var url = obj.config.enderecos[k];
 for(i=0; i<abas.length; i++){
 
 //console.log( abas[i].url.match(url) !== null );
@@ -72,21 +71,21 @@ console.log( 'removendo '  + abas[i].url );
 
 			});
 
-	updateIcon(b);
+
 }
 
 
 function persistUrl(pageUrl){
-	browser.storage.local.get().then((lista) => {
+	getConfig().then((obj) => {
 		var adicionar = true;
 		var oUrl = (new URL(pageUrl));
 		var url = oUrl.protocol + "//" + oUrl.hostname;
 
 
-		if(lista.enderecos !== undefined ){
-		for(i=0; i<lista.enderecos.length; i++){
-			if( lista.enderecos[i] == url ){
-				lista.enderecos[i] = null;
+		if(obj.config.enderecos.length > 0 ){
+		for(i=0; i<obj.config.enderecos.length; i++){
+			if( obj.config.enderecos[i] == url ){
+				obj.config.enderecos[i] = null;
 				adicionar = false;
 			}
 		}
@@ -94,13 +93,13 @@ function persistUrl(pageUrl){
 			adicionar = true;
 		}
 		if(adicionar){
-			if(lista.enderecos == null)
-				lista.enderecos = [];
-			lista.enderecos.push(url);
+			//if(lista.enderecos == null)
+			//	lista.enderecos = [];
+			obj.config.enderecos.push(url);
 			console.log(url + " Adicionada");
 		}
 
-		browser.storage.local.set(lista);
+		browser.storage.local.set(obj);
 	});
 }
 
@@ -130,6 +129,18 @@ browser.contextMenus.create({
   //checked : dontInvertState
 }, onCreated);
 
+browser.contextMenus.create({
+  id: "ligar",
+  title: " Ligar",
+  contexts: ["all"],
+}, onCreated);
+
+browser.contextMenus.create({
+  id: "desligar",
+  title: " Desligar",
+  contexts: ["all"],
+}, onCreated);
+
 /*
 LISTENER
 */
@@ -139,20 +150,67 @@ browser.contextMenus.onClicked.addListener(function(data, tab) {
         persistUrl(data.pageUrl);
         startup();
     break;
+    case "ligar":
+        inverterCores(true);
+        break;
+    case "desligar":
+        inverterCores(false);
+        break;
 
   }
 });
 
+function browserAction(){
+    getConfig().then(function(o){
+        o.config.estado = !o.config.estado;
 
-browser.tabs.onUpdated.addListener(inverterCores);
-browser.browserAction.onClicked.addListener(inverterCores);
+        if (o.config.estado) {
+            browser.browserAction.setIcon({ path: "images/preto.png" });
+            browser.browserAction.setTitle({ title: "Revert to original colors" });
+        } else {
+            browser.browserAction.setIcon({ path: "images/branco.png" });
+            browser.browserAction.setTitle({ title: "Invert colors" });
+        }
 
-//on startup
-function startup(){
+        browser.storage.local.set(o); inverterCores();
+
+        console.log(o);
+    });
+}
+
+function onUpdated(){
     browser.storage.local.get("start").then((o) => {
+        if(o.state === undefined)
+            o.state = false;
+        console.log("onUpdate chamado. Estado é " + o.state);
         inverterCores(o.state);
     });
 }
 
+//browser.tabs.onUpdated.addListener(onUpdated);
+browser.browserAction.onClicked.addListener(browserAction);
 
-startup();
+/*
+browser.browserAction.onClicked.addListener(function(){
+
+    getConfig().then(function(o){
+        o.config.estado = !o.config.estado;
+
+        if (o.config.estado) {
+            browser.browserAction.setIcon({ path: "images/preto.png" });
+            browser.browserAction.setTitle({ title: "Revert to original colors" });
+        } else {
+            browser.browserAction.setIcon({ path: "images/branco.png" });
+            browser.browserAction.setTitle({ title: "Invert colors" });
+        }
+
+        browser.storage.local.set(o);
+
+        console.log(o);
+    });
+});
+
+*/
+
+
+
