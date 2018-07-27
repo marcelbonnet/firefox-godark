@@ -76,7 +76,7 @@ console.log( 'removendo '  + abas[i].url );
 
 
 function persistUrl(pageUrl){
-	getConfig().then((obj) => {
+	return getConfig().then((obj) => {
 		var adicionar = true;
 		var oUrl = (new URL(pageUrl));
 		var url = oUrl.protocol + "//" + oUrl.hostname;
@@ -100,6 +100,7 @@ function persistUrl(pageUrl){
 		}
 
 		browser.storage.local.set(obj);
+        return adicionar;
 	});
 }
 
@@ -150,9 +151,8 @@ LISTENER
 browser.contextMenus.onClicked.addListener(function(data, tab) {
   switch (data.menuItemId) {
     case "dont-invert":
-        persistUrl(data.pageUrl);
-        startup();
-    break;
+        persistUrl(data.pageUrl).then(function(b){ console.log('add ou rm? ' + b); inverterCores(); });
+        break;
     case "ligar":
         inverterCores(true);
         break;
