@@ -124,7 +124,7 @@ MENU ITENS
 
 browser.contextMenus.create({
   id: "dont-invert",
-  title: " Add/Remove this URL to the 'dont invert' list",
+  title: "Ignorar o domínio/página desta aba ou remover da lista se já adicionado",
   //type: "checkbox",
   contexts: ["all"],
   //checked : dontInvertState
@@ -169,10 +169,10 @@ function browserAction(){
 
         if (o.config.estado) {
             browser.browserAction.setIcon({ path: "images/preto.png" });
-            browser.browserAction.setTitle({ title: "Revert to original colors" });
+            browser.browserAction.setTitle({ title: "Reverter para cores originais" });
         } else {
             browser.browserAction.setIcon({ path: "images/branco.png" });
-            browser.browserAction.setTitle({ title: "Invert colors" });
+            browser.browserAction.setTitle({ title: "Inverter Cores" });
         }
 
         browser.storage.local.set(o); inverterCores();

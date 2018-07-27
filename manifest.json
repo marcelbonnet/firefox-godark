@@ -1,14 +1,14 @@
 {
     "manifest_version": 2,
-    "name": "GoDark",
-    "version": "0.3",
+    "name": "Inverter Cores",
+    "version": "1.3",
     "homepage_url": "https://github.com/marcelbonnet/firefox-godark",
     "author" : "Marcel Bonnet",
-    "description" : "Extension to invert page and tabs colors.",
+    "description" : "Inverte as cores das páginas, desde que não tenham sido adicionadas à lista de domínios ignorados.",
 
     "browser_action": {
         "default_icon": "images/branco.png",
-        "default_title": "GoDark",
+        "default_title": "Inverter Cores",
         "browser_style": true
     },
 
